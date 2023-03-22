@@ -1,0 +1,405 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Ship_gen : MonoBehaviour
+{
+
+    // if this code was a horse I would shoot it
+
+    public MeshRenderer[] renderers;
+
+    // LIGHTHOUSE
+    public GameObject lightHouse;
+    public float raycastLightDistance = 100f;
+    public float spawnLightCollisionCheckRadius;
+    public float spawnLightRadius;
+    public int lightCount;
+    public LayerMask lightLayer;
+
+
+
+    // BOATS
+    public List<GameObject> bodyParts;
+    public List<GameObject> frontParts;
+    public List<GameObject> backParts;
+    public float raycastDistance = 1f;
+    public float spawnCollisionCheckRadius;
+    public float spawnRadius;
+    public int Count;
+
+    public List<Transform> PrefabTrans;
+    public LayerMask shipLayer;
+
+    // TREES
+    public List<GameObject> trees;
+    public float raycastTreeDistance = 100f;
+    public float spawnTreeCollisionCheckRadius;
+    public float spawnTreeRadius;
+    public int treeCount;
+    public LayerMask treeLayer;
+
+
+    //BIRDS
+    public List<GameObject> birds;
+    public float spawnBirdsRadius;
+    public int birdsCount;
+    public float spawnBirdCollisionCheckRadius;
+    public LayerMask BirdLayer;
+
+    //FISH
+    public List<GameObject> fish;
+    public float raycastFishDistance = 1f;
+    public float spawnFishCollisionCheckRadius;
+    public float spawnFishRadius;
+    public int FishCount;
+
+
+
+    //WEATHER
+
+    public List<GameObject> weather;
+    public float spawnWeatherRadius;
+    public int weatherCount;
+
+
+    //GROUND
+
+    public List<GameObject> ground;
+    public float spawnGroundRadius;
+    public int groundCount;
+    public LayerMask GroundLayer;
+
+
+
+    Vector3 temp;
+    public int CubeHeightMax = 5;
+
+
+    public LayerMask layerMask;
+
+    //GROUND
+
+
+
+
+
+
+
+
+
+
+
+
+    public List<GameObject> ships = new List<GameObject>();
+    //public List<GameObject> trees = new List<GameObject>();
+
+
+
+    [Range(0f, 1f)]
+    public float S;
+    [Range(0f, 1f)]
+    public float V;
+
+
+
+
+
+
+    private void Awake()
+    {
+
+    }
+    void Start()
+    {
+
+        GenerateBoat();
+        GenerateTrees();
+        GenerateBirds();
+        GenerateWeather();
+        GenerateLight();
+        //Ground();
+        // GroundTwo();
+
+    }
+
+
+
+
+    public void changeColor(List<GameObject> ships)
+    {
+        this.GetComponent<Renderer>().material.color = Color.HSVToRGB(Random.Range(0f, 1f), S, V);
+
+    }
+
+
+    void Update()
+    {
+        if (Input.GetKey("r"))
+        {
+            Rest();
+        }
+    }
+
+    public void Rest()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    //WEATHER
+
+    public void GenerateWeather()
+    {
+        for (int i = 0; i < weatherCount; i++)
+        {
+
+            GameObject randomWeather = GetRandomWeather(weather);
+            GameObject insweather = Instantiate(randomWeather, new Vector3(62.9f, 14, 14.143f), Quaternion.Euler(-90, 0, 0));
+
+
+
+        }
+
+    }
+
+
+    //BIRDS
+    public void GenerateBirds()
+    {
+        for (int i = 0; i < birdsCount; i++)
+        {
+            int xBirdsPos = Random.Range(-30, 100);
+            int zBirdsPos = Random.Range(-30, 100);
+            int yBirdsPos = Random.Range(30, 50);
+
+
+            Vector3 birdsPos = new Vector3(xBirdsPos, yBirdsPos, zBirdsPos) + transform.position * spawnBirdsRadius;
+            Vector3 spawnBirdsPos = new Vector3(birdsPos.x, birdsPos.y, birdsPos.z);
+
+            if (!Physics.CheckSphere(spawnBirdsPos, spawnBirdCollisionCheckRadius, BirdLayer))
+
+            {
+
+                GameObject randomBird = GetRandomBird(birds);
+                GameObject insbirds = Instantiate(randomBird, spawnBirdsPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+            }
+
+        }
+
+    }
+
+    //LIGHTHOUSE
+
+    public void GenerateLight()
+    {
+        for (int i = 0; i < lightCount; i++)
+
+        {
+
+            int xLightPos = Random.Range(0, 30);
+            int zLightPos = Random.Range(0, 30);
+
+
+            Vector3 lightPos = new Vector3(xLightPos, 100, zLightPos) + transform.position * spawnLightRadius;
+            RaycastHit hit;
+
+            Physics.Raycast(lightPos, Vector3.down, out hit, raycastLightDistance, lightLayer);
+
+            Vector3 spawnLightPos = new Vector3(lightPos.x, hit.point.y, lightPos.z);
+
+
+
+
+            if (Physics.Raycast(lightPos, Vector3.down, out hit, raycastLightDistance))
+            {
+
+
+                GameObject inslight = Instantiate(lightHouse, spawnLightPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+
+            }
+
+        }
+
+    }
+
+
+
+    //TREES STOP SPAWING ON BOATS IM BEGGING YOU CHRIST!!!
+    public void GenerateTrees()
+    {
+        for (int i = 0; i < treeCount; i++)
+
+        {
+
+            int xTreePos = Random.Range(-90, 30);
+            int zTreePos = Random.Range(-90, 30);
+            //int yPos = Random.Range(0, 5);
+
+
+            Vector3 treePos = new Vector3(xTreePos, 100, zTreePos) + transform.position * spawnTreeRadius;
+            RaycastHit hit;
+
+            Physics.Raycast(treePos, Vector3.down, out hit, raycastTreeDistance, layerMask);
+
+            Vector3 spawnTreePos = new Vector3(treePos.x, hit.point.y, treePos.z);
+
+
+
+
+            if (Physics.Raycast(treePos, Vector3.down, out hit, raycastTreeDistance))
+            {
+                if (!Physics.CheckSphere(treePos, spawnCollisionCheckRadius, layerMask))
+                {
+
+                    GameObject randomTree = GetRandomTree(trees);
+                    GameObject instree = Instantiate(randomTree, spawnTreePos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+                }
+            }
+
+        }
+
+    }
+
+    
+
+
+
+        //BOATS && GROUND
+        public void GenerateBoat()
+        {
+
+            for (int i = 0; i < Count; i++)
+
+            {
+
+                int xPos = Random.Range(15, 100);
+                int zPos = Random.Range(15, 100);
+
+                int xGroundPos = Random.Range(0, 40);
+                int zGroundPos = Random.Range(0, 40);
+                int yGroundPos = Random.Range(0, 5);
+
+                int xGroundTwoPos = Random.Range(15, 60);
+                int zGroundTwoPos = Random.Range(15, 60);
+                int yGroundTwoPos = Random.Range(0, 5);
+
+
+
+
+                Vector3 pos = new Vector3(xPos, 100, zPos) + transform.position * spawnRadius;
+                Vector3 GroundPos = new Vector3(xGroundPos, 100, zGroundPos) + transform.position * spawnRadius;
+
+                RaycastHit hit;
+
+                Physics.Raycast(pos, Vector3.down, out hit, raycastDistance);
+
+                //Debug.Log(hit.point.y);
+
+                Vector3 spawnPos = new Vector3(pos.x, hit.point.y, pos.z);
+                Vector3 SpawnGroundPos = new Vector3(xGroundPos, hit.point.y, zGroundPos);
+                Vector3 spawnGroundTwoPos = new Vector3(xGroundTwoPos, 0, zGroundTwoPos);
+
+
+
+
+                if (!Physics.CheckSphere(spawnPos, spawnCollisionCheckRadius, shipLayer))
+                {
+                    ships.Add(this.gameObject);
+
+                    GameObject randomBody = GetRandomPart(bodyParts);
+                    GameObject insBody = Instantiate(randomBody, spawnPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+                    ShipMainBody sBody = insBody.GetComponent<ShipMainBody>();
+
+                    GameObject randomFront = GetRandomPart(frontParts);
+                    GameObject insFront = Instantiate(randomFront, sBody.frontSocket.position, sBody.frontSocket.rotation);
+                    insFront.transform.parent = sBody.frontSocket;
+
+                    GameObject randomBack = GetRandomPart(backParts);
+                    GameObject insBack = Instantiate(randomBack, sBody.backSocket.position, sBody.backSocket.rotation);
+                    insBack.transform.parent = sBody.backSocket;
+
+                    GameObject randomFish = GetRandomPart(fish);
+                    Vector3 FishPos = new Vector3(pos.x + Random.Range(2, 5), -10 + Random.Range(5, -15), pos.z + Random.Range(2, 5));
+                    GameObject insFish = Instantiate(randomFish, FishPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+
+
+                    int randomNumberCube = Random.Range(0, CubeHeightMax + 0);
+
+
+
+
+                    GameObject randomGround = GetRandomGround(ground);
+                    GameObject insGround = Instantiate(randomGround, SpawnGroundPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+                    randomGround.transform.localScale = new Vector3(Random.Range(2, 5), Random.Range(2, 5), Random.Range(2, 10));
+
+                    // Debug.Log(zGroundPos);
+
+                    GameObject randomGroundTwo = GetRandomGround(ground);
+                    GameObject insGroundTwo = Instantiate(randomGround, spawnGroundTwoPos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+                    randomGround.transform.localScale = new Vector3(Random.Range(5, 20), Random.Range(5, 8), Random.Range(5, 20));
+
+
+
+
+                }
+
+
+
+            }
+
+
+        }
+
+
+
+
+
+        //BOAT
+        GameObject GetRandomPart(List<GameObject> partsList)
+        {
+            int randomNumber = Random.Range(0, partsList.Count);
+            return partsList[randomNumber];
+        }
+
+        //TREE
+        GameObject GetRandomTree(List<GameObject> treeList)
+        {
+            int randomNumber = Random.Range(0, treeList.Count);
+            return treeList[randomNumber];
+        }
+
+        //GROUND
+        GameObject GetRandomGround(List<GameObject> groundList)
+        {
+            int randomNumber = Random.Range(0, groundList.Count);
+            return groundList[randomNumber];
+        }
+
+        //BIRS
+        GameObject GetRandomBird(List<GameObject> birdList)
+        {
+            int randomNumber = Random.Range(0, birdList.Count);
+            return birdList[randomNumber];
+        }
+
+        //FISH
+        GameObject GetRandomFish(List<GameObject> fishList)
+        {
+            int randomNumber = Random.Range(0, fishList.Count);
+            return fishList[randomNumber];
+        }
+
+        //WEATHER
+        GameObject GetRandomWeather(List<GameObject> weatherList)
+        {
+            int randomNumber = Random.Range(0, weatherList.Count);
+            return weatherList[randomNumber];
+        }
+    } 
