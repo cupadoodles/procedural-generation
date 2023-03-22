@@ -1,0 +1,22 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Fish : MonoBehaviour
+{
+    // Start is called before the first frame update
+    public MeshRenderer[] renderers;
+    public List<Color> Colors;
+    [Range(0f, 1f)]
+    public float S;
+    [Range(0f, 1f)]
+    public float V;
+
+
+    void Start()
+    {
+        this.GetComponent<Renderer>().material.color = Color.HSVToRGB(Random.Range(0f, 1f), S, V);
+
+
+    }
+}
