@@ -1,0 +1,74 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Rocks_gen_Two : MonoBehaviour
+
+{
+
+    public int rocksCount;
+    public GameObject rocks;
+    public float spawnRadius;
+    public float spawnCollisionCheckRadius;
+    public LayerMask GroundLayer;
+    public float raycastDistance = 1f;
+
+    public int cloudsCount;
+    public GameObject clouds;
+    public float spawnCloudsRadius;
+    public float spawnCollisionCloudsCheckRadius;
+    public float raycastCloudsDistance = 1f;
+
+
+     void Start()
+    {
+        Clouds();
+        Rocks();
+        
+    }
+
+    public void Clouds()
+    {
+        for (int i = 0; i < rocksCount; i++)
+        {
+            int xCloudsPos = Random.Range(0, 100);
+            int zCloudsPos = Random.Range(0, 100);
+            int yCloudsPos = Random.Range(50, 70);
+            Vector3 spawnCloudsPos = new Vector3(xCloudsPos, yCloudsPos, zCloudsPos);
+
+            if (!Physics.CheckSphere(spawnCloudsPos, spawnCollisionCheckRadius))
+            {
+                GameObject insClouds = Instantiate(clouds, spawnCloudsPos, Quaternion.Euler(0, 0, 0));
+
+                clouds.transform.localScale = new Vector3(Random.Range(20, 70), Random.Range(3, 10), Random.Range(20, 70));
+
+
+            }
+        }
+    }
+
+    public void Rocks()
+    {
+        for (int i = 0; i < rocksCount; i++)
+        {
+            int xGroundThreePos = Random.Range(30, 90);
+            int zGroundThreePos = Random.Range(30, 90);
+            int yGroundThreePos = Random.Range(0, 5);
+            Vector3 GroundThreePos = new Vector3(xGroundThreePos, 100, zGroundThreePos) + transform.position * spawnRadius;
+            RaycastHit hit;
+
+            Physics.Raycast(GroundThreePos, Vector3.down, out hit, raycastDistance);
+            Vector3 spawnGroundThreePos = new Vector3(xGroundThreePos, 0, zGroundThreePos);
+
+            if (!Physics.CheckSphere(spawnGroundThreePos, spawnCollisionCheckRadius, GroundLayer))
+            {
+                GameObject insGroundThree = Instantiate(rocks, spawnGroundThreePos, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+
+                rocks.transform.localScale = new Vector3(Random.Range(1, 5), Random.Range(10, 20), Random.Range(1, 5));
+
+
+            }
+        }
+    }
+}
+
